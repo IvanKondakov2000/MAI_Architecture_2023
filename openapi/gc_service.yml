@@ -1,0 +1,187 @@
+openapi: '3.0.0'
+info:
+  version: '1.0.0'
+  title: 'Group Chat API'
+  description: Group chat API
+servers:
+  - url: http://localhost:8081
+    description: Example server
+paths:
+  /gc:
+    get:
+      summary: Получение списка групповых чатов
+      responses:
+        '200':
+          description: Список id групповых чатов (может быть пустой)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group_chat'
+
+  /gc/create:
+    post:
+      summary: Создание чата
+      responses:
+        '200':
+          description: Чат создан от лица авторизованного пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group_chat_id'
+
+  /gc/users:
+    get:
+      summary: Получение списка пользователей группового чата
+      parameters:
+      - name: chat_id
+        description: ID чата
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Список пользователей групповых чатов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group_chat_info'
+
+  /gc/users/add:
+    get:
+      summary: Добавляение пользователя в чат
+      parameters:
+      - name: chat_id
+        description: ID чата
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: user_id
+        description: ID пользователя
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ПОльзователь добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group_chat_info'
+        '400':
+          description: Не хватает параметров
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /msg:
+    get:
+      summary: Получение списка сообщений группового чата
+      parameters:
+      - name: chat_id
+        description: ID чата
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Список сообщений
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/msg'
+        '400':
+          description: Не хватает параметров
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /msg/create:
+    post:
+      summary: Добавление сообщений группового чата
+      parameters:
+      - name: chat_id
+        description: ID чата
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: message
+        description: Сообщение
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Сообщение добавлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/msg'
+        '400':
+          description: Не хватает параметров
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    group_chat_id:
+      description: Уникальный идентификатор группового чата
+      type: integer
+    group_chat:
+      type: array
+      items:
+        $ref: '#/components/schemas/group_chat_id'
+    user_id:
+      description: Уникальный идентификатор пользователя
+      type: integer
+    users:
+      type: array
+      items:
+        $ref: '#/components/schemas/user_id'
+    group_chat_info:
+      type: object
+      required:
+        - chat_id
+        - user_ids
+      properties:
+        chat_id:
+          $ref: '#/components/schemas/group_chat_id'
+        user_ids:
+          $ref: '#/components/schemas/users'
+    msg:
+      type: object
+      required:
+        - chat_id
+        - user_id
+        - message
+      properties:
+        chat_id:
+          $ref: '#/components/schemas/group_chat_id'
+        user_id:
+          $ref: '#/components/schemas/user_id'
+        message:
+          type: string
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          description: Сообщение о ошибке
+          type: string
+  securitySchemes:
+      basicAuth:
+        type: http
+        scheme: basic
+security:
+  - basicAuth: []
+

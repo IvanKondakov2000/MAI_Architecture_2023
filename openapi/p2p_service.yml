@@ -1,0 +1,84 @@
+openapi: '3.0.0'
+info:
+  version: '1.0.0'
+  title: 'P2P Chat API'
+  description: Peer to Peer chat API
+servers:
+  - url: http://localhost:8082
+    description: Example server
+paths:
+  /msg:
+    get:
+      summary: Получение списка сообщений пользователя
+      parameters:
+      responses:
+        '200':
+          description: Список сообщений
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/msg'
+
+  /msg/create:
+    post:
+      summary: Добавление сообщений другому пользователю
+      parameters:
+      - name: to_user
+        description: ID пользователя кому отправить
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: message
+        description: Сообщение
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Сообщение добавлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/msg'
+        '400':
+          description: Не хватает параметров
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    user_id:
+      description: Уникальный идентификатор пользователя
+      type: integer
+    msg:
+      type: object
+      required:
+        - from_id
+        - to_id
+        - message
+      properties:
+        from_id:
+          $ref: '#/components/schemas/user_id'
+        to_id:
+          $ref: '#/components/schemas/user_id'
+        message:
+          type: string
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          description: Сообщение о ошибке
+          type: string
+  securitySchemes:
+      basicAuth:
+        type: http
+        scheme: basic
+security:
+  - basicAuth: []
+
